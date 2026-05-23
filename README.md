@@ -142,6 +142,11 @@ treeport \
 | `--help` | `-h` | Show help |
 | `--version` | | Show version |
 
+## Environment
+
+`TREEPORT_SOURCE_PATH` and `TREEPORT_DEST_PATH` can provide defaults for `--source` and `--dest`.
+Flags take priority when both are set.
+
 Patterns can be positional or passed with `--include`.
 
 These are equivalent:

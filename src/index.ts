@@ -17,6 +17,8 @@ import type { CopyOptions, TreePortConfig } from "./types.js";
 const require = createRequire(import.meta.url);
 const packageJson = require("../package.json") as { version?: unknown };
 const version = typeof packageJson.version === "string" ? packageJson.version : "0.0.0";
+const sourceEnvVar = "TREEPORT_SOURCE_PATH";
+const destEnvVar = "TREEPORT_DEST_PATH";
 
 type RootCliOptions = {
   source?: string;
@@ -74,7 +76,10 @@ async function updateConfig(mutator: (config: TreePortConfig) => TreePortConfig)
 }
 
 async function handleRoot(patterns: string[], options: RootCliOptions): Promise<void> {
-  if (!options.source || !options.dest) {
+  const source = options.source ?? process.env[sourceEnvVar];
+  const dest = options.dest ?? process.env[destEnvVar];
+
+  if (!source || !dest) {
     console.error("Missing source or dest.\n\nUsage:\n  treeport -s <source-dir> -d <dest-dir> <patterns...>");
     process.exitCode = 1;
     return;
@@ -83,8 +88,8 @@ async function handleRoot(patterns: string[], options: RootCliOptions): Promise<
   const positional = splitPatterns(patterns);
   const config = await readConfig();
   const copyOptions: CopyOptions = {
-    source: options.source,
-    dest: options.dest,
+    source,
+    dest,
     cliIncludes: [...positional.includes, ...toArray(options.include)],
     cliExcludes: [...positional.excludes, ...toArray(options.exclude)],
     noConfig: options.config === false,
