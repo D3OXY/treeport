@@ -1,5 +1,11 @@
 # treeport
 
+## 0.0.4
+
+### Patch Changes
+
+- 8590a3f: Fix CLI startup when installed globally through npm's symlinked binary.
+
 ## 0.0.3
 
 ### Patch Changes
