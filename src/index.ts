@@ -26,6 +26,8 @@ type RootCliOptions = {
   config?: boolean;
   dryRun?: boolean;
   overwrite?: boolean;
+  link?: boolean;
+  symlink?: boolean;
   verbose?: boolean;
 };
 
@@ -35,6 +37,10 @@ function toArray(value: string | string[] | undefined): string[] {
   }
 
   return Array.isArray(value) ? value : [value];
+}
+
+function normalizePatterns(value: string | string[] | undefined): string[] {
+  return toArray(value);
 }
 
 function splitPatterns(patterns: string[]): { includes: string[]; excludes: string[] } {
@@ -83,6 +89,7 @@ async function handleRoot(patterns: string[], options: RootCliOptions): Promise<
     cliExcludes: [...positional.excludes, ...toArray(options.exclude)],
     noConfig: options.config === false,
     dryRun: options.dryRun ?? false,
+    link: (options.link ?? false) || (options.symlink ?? false),
     verbose: options.verbose ?? false,
     config,
   };
@@ -198,8 +205,12 @@ export async function main(argv = process.argv): Promise<void> {
     .option("--no-config", "ignore global config")
     .option("--dry-run", "preview only")
     .option("--overwrite", "overwrite existing files")
+    .option("--link", "create symlinks instead of copying files")
+    .option("--symlink", "create symlinks instead of copying files")
     .option("-v, --verbose", "detailed logs")
-    .action((patterns: string[] | undefined, options: RootCliOptions) => handleRoot(patterns ?? [], options));
+    .action((patterns: string | string[] | undefined, options: RootCliOptions) =>
+      handleRoot(normalizePatterns(patterns), options),
+    );
 
   cli.help();
   cli.version(version);

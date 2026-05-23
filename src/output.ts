@@ -27,9 +27,11 @@ export function formatNoMatchesError(patterns: EffectivePatterns): string {
 }
 
 export function formatCopyResult(result: CopyResult): string {
-  const copyLabel = result.dryRun ? "Would copy:" : "Copied:";
+  const action = result.link ? "link" : "copy";
+  const actionPast = result.link ? "linked" : "copied";
+  const copyLabel = result.dryRun ? `Would ${action}:` : result.link ? "Linked:" : "Copied:";
   const skipLabel = result.dryRun ? "Would skip:" : "Skipped:";
-  const copiedLabel = result.dryRun ? "would copy" : "copied";
+  const copiedLabel = result.dryRun ? `would ${action}` : actionPast;
   const skippedLabel = result.dryRun ? "would skip" : "skipped";
   const header = result.dryRun ? "TreePort dry run. No files copied." : "TreePort";
   const lines = [

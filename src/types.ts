@@ -12,6 +12,7 @@ export type CopyOptions = {
   noConfig: boolean;
   dryRun: boolean;
   overwrite?: boolean;
+  link: boolean;
   verbose: boolean;
   config: TreePortConfig;
 };
@@ -20,6 +21,7 @@ export type EffectivePatterns = {
   includes: string[];
   excludes: string[];
   overwrite: boolean;
+  link: boolean;
 };
 
 export type PlannedCopy = {
@@ -35,6 +37,7 @@ export type CopyResult = {
   dest: string;
   dryRun: boolean;
   patterns: EffectivePatterns;
+  link: boolean;
   planned: PlannedCopy[];
   copied: PlannedCopy[];
   skipped: PlannedCopy[];

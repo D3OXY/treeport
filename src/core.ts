@@ -1,5 +1,5 @@
 import { constants } from "node:fs";
-import { access, copyFile, mkdir, stat } from "node:fs/promises";
+import { access, copyFile, mkdir, rm, stat, symlink } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve, sep } from "node:path";
 import { glob } from "tinyglobby";
 import type { CopyOptions, CopyResult, EffectivePatterns, PlannedCopy } from "./types.js";
@@ -69,6 +69,7 @@ export function getEffectivePatterns(options: CopyOptions): EffectivePatterns {
     includes: unique([...configIncludes, ...options.cliIncludes].map(normalizeGlob)),
     excludes: unique([...defaultExcludes, ...configExcludes, ...options.cliExcludes].map(normalizeGlob)),
     overwrite: options.overwrite ?? configOverwrite,
+    link: options.link,
   };
 }
 
@@ -121,6 +122,7 @@ export async function planCopy(options: CopyOptions): Promise<CopyResult> {
     dest: options.verbose ? dest : options.dest,
     dryRun: options.dryRun,
     patterns,
+    link: patterns.link,
     planned,
     copied: planned.filter((item) => item.status === "copy"),
     skipped: planned.filter((item) => item.status === "skip"),
@@ -136,7 +138,14 @@ export async function runCopy(options: CopyOptions): Promise<CopyResult> {
 
   for (const item of result.copied) {
     await mkdir(dirname(item.destPath), { recursive: true });
-    await copyFile(item.sourcePath, item.destPath);
+    if (result.link) {
+      if (result.patterns.overwrite) {
+        await rm(item.destPath, { force: true });
+      }
+      await symlink(item.sourcePath, item.destPath);
+    } else {
+      await copyFile(item.sourcePath, item.destPath);
+    }
   }
 
   return result;

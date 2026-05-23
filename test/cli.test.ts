@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -50,6 +50,43 @@ describe("treeport cli", () => {
       await main(["node", "treeport", "-s", source, "-d", dest]);
 
       await expect(readFile(join(dest, ".env.local"), "utf8")).resolves.toBe("secret");
+      expect(process.exitCode).toBeUndefined();
+    });
+  });
+
+  test("copy command accepts a single positional pattern and creates missing destination folders", async () => {
+    await withConfigHome(async (configHome) => {
+      const source = join(configHome, "source");
+      const dest = join(configHome, "dest");
+      await mkdir(join(source, "apps/web"), { recursive: true });
+      await mkdir(dest, { recursive: true });
+      await writeFile(join(source, "apps/web/.env.local"), "web-secret", "utf8");
+
+      vi.spyOn(console, "log").mockImplementation(() => undefined);
+
+      await main(["node", "treeport", "-s", source, "-d", dest, "**/.env*"]);
+
+      await expect(readFile(join(dest, "apps/web/.env.local"), "utf8")).resolves.toBe("web-secret");
+      expect(process.exitCode).toBeUndefined();
+    });
+  });
+
+  test("copy command supports symlink mode", async () => {
+    await withConfigHome(async (configHome) => {
+      const source = join(configHome, "source");
+      const dest = join(configHome, "dest");
+      await mkdir(join(source, "apps/web"), { recursive: true });
+      await mkdir(dest, { recursive: true });
+      await writeFile(join(source, "apps/web/.env.local"), "web-secret", "utf8");
+
+      vi.spyOn(console, "log").mockImplementation(() => undefined);
+
+      await main(["node", "treeport", "-s", source, "-d", dest, "**/.env*", "--symlink"]);
+
+      await expect(lstat(join(dest, "apps/web/.env.local")).then((stats) => stats.isSymbolicLink())).resolves.toBe(
+        true,
+      );
+      await expect(readFile(join(dest, "apps/web/.env.local"), "utf8")).resolves.toBe("web-secret");
       expect(process.exitCode).toBeUndefined();
     });
   });

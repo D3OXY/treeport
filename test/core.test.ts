@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, readFile, readlink, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "vitest";
@@ -33,6 +33,7 @@ function options(dirs: TestDirs, overrides: Partial<CopyOptions>): CopyOptions {
     cliExcludes: [],
     noConfig: false,
     dryRun: false,
+    link: false,
     verbose: false,
     config: { includes: [], excludes: [], overwrite: false },
   };
@@ -113,6 +114,36 @@ describe("treeport copy", () => {
 
       expect(result.copied.map((item) => item.relativePath)).toEqual([".env"]);
       await expect(readFile(join(dirs.dest, ".env"), "utf8")).rejects.toMatchObject({ code: "ENOENT" });
+    });
+  });
+
+  test("link mode creates symlinks and missing destination folders", async () => {
+    await withDirs(async (dirs) => {
+      await write(join(dirs.source, "apps/web/.env.local"), "web");
+
+      const result = await runCopy(options(dirs, { cliIncludes: ["**/.env*"], link: true }));
+      const destPath = join(dirs.dest, "apps/web/.env.local");
+
+      expect(result.link).toBe(true);
+      await expect(lstat(destPath).then((stats) => stats.isSymbolicLink())).resolves.toBe(true);
+      await expect(readlink(destPath)).resolves.toBe(join(dirs.source, "apps/web/.env.local"));
+      await expect(readFile(destPath, "utf8")).resolves.toBe("web");
+    });
+  });
+
+  test("link mode skips existing files unless overwrite is set", async () => {
+    await withDirs(async (dirs) => {
+      await write(join(dirs.source, ".env"), "source");
+      await write(join(dirs.dest, ".env"), "dest");
+
+      const skipped = await runCopy(options(dirs, { cliIncludes: [".env*"], link: true }));
+      expect(skipped.skipped.map((item) => item.relativePath)).toEqual([".env"]);
+      await expect(readFile(join(dirs.dest, ".env"), "utf8")).resolves.toBe("dest");
+
+      const overwritten = await runCopy(options(dirs, { cliIncludes: [".env*"], link: true, overwrite: true }));
+      expect(overwritten.copied.map((item) => item.relativePath)).toEqual([".env"]);
+      await expect(lstat(join(dirs.dest, ".env")).then((stats) => stats.isSymbolicLink())).resolves.toBe(true);
+      await expect(readFile(join(dirs.dest, ".env"), "utf8")).resolves.toBe("source");
     });
   });
 

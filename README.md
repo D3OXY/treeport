@@ -90,9 +90,10 @@ TreePort:
 - discovers files in the source directory using glob patterns
 - applies excludes after includes
 - preserves every matched file's relative path
-- creates destination folders as needed
+- creates destination folders as needed, including nested subfolders that do not exist yet
 - skips existing destination files by default
 - overwrites only with `--overwrite`
+- can create symbolic links instead of copies with `--link` or `--symlink`
 - never deletes destination files
 - always excludes `.git` and `node_modules`
 
@@ -119,6 +120,7 @@ treeport \
   --exclude <pattern> \
   --dry-run \
   --overwrite \
+  --link \
   --no-config \
   --verbose
 ```
@@ -134,6 +136,8 @@ treeport \
 | `--no-config` | | Ignore global config |
 | `--dry-run` | | Preview planned copies without writing files |
 | `--overwrite` | | Replace existing destination files |
+| `--link` | | Create symlinks instead of copying files |
+| `--symlink` | | Alias for `--link` |
 | `--verbose` | `-v` | Print absolute source/destination paths |
 | `--help` | `-h` | Show help |
 | `--version` | | Show version |
@@ -228,6 +232,18 @@ Overwrite existing destination files:
 
 ```bash
 treeport -s ../main -d ../worktree "**/.env*" --overwrite
+```
+
+Create symlinks instead of copying files:
+
+```bash
+treeport -s ../main -d ../worktree "**/.env*" --link
+```
+
+Equivalent symlink alias:
+
+```bash
+treeport -s ../main -d ../worktree "**/.env*" --symlink
 ```
 
 Ignore saved config:
@@ -483,6 +499,46 @@ treeport -s ../main -d ../worktree "**/.env*" --overwrite
 
 TreePort never deletes files from the destination. It is a selective copy tool, not a sync/delete tool.
 
+TreePort creates missing destination folders automatically.
+
+Example:
+
+```txt
+source: ../main/apps/web/.env.local
+dest:   ../worktree/apps/web/.env.local
+```
+
+If `../worktree/apps/web` does not exist, TreePort creates it before copying or linking `.env.local`.
+
+## Symlink Mode
+
+Use `--link` or `--symlink` when you want destination files to point back to the source tree instead of copying file contents.
+
+```bash
+treeport -s ../main -d ../worktree "**/.env*" --link
+```
+
+This creates file symlinks:
+
+```txt
+../worktree/.env.local -> ../main/.env.local
+../worktree/apps/web/.env.local -> ../main/apps/web/.env.local
+```
+
+Symlink mode follows the same safety rules as copy mode:
+
+- relative paths are preserved
+- missing destination folders are created
+- existing destination paths are skipped by default
+- existing destination paths are replaced only with `--overwrite`
+- `.git` and `node_modules` are still excluded
+
+Overwrite existing destination paths with symlinks:
+
+```bash
+treeport -s ../main -d ../worktree "**/.env*" --link --overwrite
+```
+
 ## Output
 
 Successful copy:
@@ -594,6 +650,8 @@ TreePort is conservative by default:
 
 - no patterns means no copy
 - destination files are skipped unless `--overwrite` is set
+- missing destination folders are created, but destination files are never deleted
+- symlink mode uses the same skip/overwrite rules as copy mode
 - `.git` and `node_modules` are forced excludes
 - no delete behavior exists
 - dry-run is available for previewing sensitive operations
