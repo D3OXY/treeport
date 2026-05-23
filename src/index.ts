@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { cac } from "cac";
 import { addPatterns, clearConfig, getConfigPath, readConfig, removePatterns, writeConfig } from "./config.js";
 import { runCopy } from "./core.js";
@@ -205,7 +207,16 @@ export async function main(argv = process.argv): Promise<void> {
   await cli.runMatchedCommand();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isCliEntrypoint(): boolean {
+  const scriptPath = process.argv[1];
+  if (!scriptPath) {
+    return false;
+  }
+
+  return realpathSync(scriptPath) === fileURLToPath(import.meta.url);
+}
+
+if (isCliEntrypoint()) {
   main().catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
