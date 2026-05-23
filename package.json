@@ -1,6 +1,6 @@
 {
   "name": "treeport",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "packageManager": "pnpm@11.1.1",
   "author": {
     "name": "DEOXY",
