@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "changeset": "changeset",
-    "release": "pnpm publish --access public",
+    "release": "changeset publish",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "version": "changeset version"
