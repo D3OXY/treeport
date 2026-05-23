@@ -1,5 +1,11 @@
 # treeport
 
+## 0.0.3
+
+### Patch Changes
+
+- 26874d1: Rewrite README with full usage, config, pattern, and release documentation.
+
 ## 0.0.2
 
 ### Patch Changes
