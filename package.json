@@ -1,0 +1,44 @@
+{
+  "name": "treeport",
+  "version": "0.1.0",
+  "author": {
+    "name": "DEOXY",
+    "email": "hello@deoxy.dev",
+    "url": "https://deoxy.dev"
+  },
+  "homepage": "https://deoxy.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3oxy/treeport.git"
+  },
+  "bugs": {
+    "url": "https://github.com/d3oxy/treeport/issues"
+  },
+  "type": "module",
+  "bin": {
+    "treeport": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "tinyglobby": "^0.2.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "files": [
+    "dist"
+  ],
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
