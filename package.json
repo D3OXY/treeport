@@ -10,10 +10,10 @@
   "homepage": "https://deoxy.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/d3oxy/treeport.git"
+    "url": "git+https://github.com/D3OXY/treeport.git"
   },
   "bugs": {
-    "url": "https://github.com/d3oxy/treeport/issues"
+    "url": "https://github.com/D3OXY/treeport/issues"
   },
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "changeset": "changeset",
-    "release": "pnpm publish --access public --provenance",
+    "release": "pnpm publish --access public",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "version": "changeset version"

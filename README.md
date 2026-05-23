@@ -25,9 +25,13 @@ Create a changeset for user-facing changes:
 pnpm changeset
 ```
 
-Merging to `main` creates or updates the Changesets version PR. Merging that PR publishes to npm from GitHub Actions with provenance.
+Merging to `main` creates or updates the Changesets version PR. Merging that PR publishes to npm from GitHub Actions through trusted publishing.
 
-The repository needs one npm setup path:
+Configure npm trusted publishing for package `treeport`:
 
-- Preferred: npm trusted publishing for `D3OXY/treeport`.
-- Alternative: repository secret `NPM_TOKEN` with publish access.
+- Publisher: GitHub Actions
+- Organization/user: `D3OXY`
+- Repository: `treeport`
+- Workflow filename: `release.yml`
+- Environment: unset
+- Allowed action: `npm publish`
