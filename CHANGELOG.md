@@ -1,5 +1,11 @@
 # treeport
 
+## 0.2.0
+
+### Minor Changes
+
+- b648033: Add `TREEPORT_SOURCE_PATH` and `TREEPORT_DEST_PATH` env var defaults for source and destination paths.
+
 ## 0.1.0
 
 ### Minor Changes
