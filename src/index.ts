@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
 import { cac } from "cac";
 import { addPatterns, clearConfig, getConfigPath, readConfig, removePatterns, writeConfig } from "./config.js";
 import { runCopy } from "./core.js";
@@ -11,7 +12,9 @@ import {
 } from "./output.js";
 import type { CopyOptions, TreePortConfig } from "./types.js";
 
-const version = "0.1.0";
+const require = createRequire(import.meta.url);
+const packageJson = require("../package.json") as { version?: unknown };
+const version = typeof packageJson.version === "string" ? packageJson.version : "0.0.0";
 
 type RootCliOptions = {
   source?: string;

@@ -1,5 +1,11 @@
 # treeport
 
+## 0.0.2
+
+### Patch Changes
+
+- Fix CLI `--version` output to read from package metadata.
+
 ## 0.0.1
 
 ### Initial release
